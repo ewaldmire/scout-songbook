@@ -1,0 +1,36 @@
+# -------------------
+# LaTeX compilation artifacts
+# -------------------
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+
+# PDFs generated (both single-song and full songbook)
+*.pdf
+
+# Build directory if used
+/build/
+
+# -------------------
+# Editor backup files
+# -------------------
+*~
+*.swp
+*.bak
+*.tmp
+
+# Mac OS Finder files
+.DS_Store
+
+# Miscellaneous
+*.backup
+
