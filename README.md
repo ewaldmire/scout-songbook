@@ -42,4 +42,11 @@ Then, you can run this command to generate a printable booklet format:
 
 ```
 pdfbook --short-edge ~/path/to/songbook_ebook.pdf  --outfile ~/path/to/new/file/songbook_booklet.pdf
+
+```
+
+## Lazy copy-paste for me to build all the things:
+```
+export PATH=$HOME/pdfjam-4.2/bin:$PATH
+pdflatex songbook_ebook.tex && pdflatex songbook_ebook.tex && ~/code/pdfjam-extras/bin/pdfbook --short-edge ~/code/scout-songbook/songbook_ebook.pdf  --outfile ~/code/scout-songbook/songbook_booklet.pdf
 ```
