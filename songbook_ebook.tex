@@ -21,6 +21,7 @@
 
 % Individual song titles
 \newcommand{\songtitle}[1]{%
+  \clearpage %to put each song on it's own page
   \subsection*{#1}
   \addcontentsline{toc}{subsection}{#1}
   \vspace{0.3cm}
@@ -29,6 +30,7 @@
 
 % Individual skit titles
 \newcommand{\skittitle}[1]{%
+  \clearpage %to put each skit on it's own page
   \subsection*{#1}
   \addcontentsline{toc}{subsection}{#1}
   \vspace{0.3cm}
@@ -38,7 +40,7 @@
 \begin{document}
 
 % =========================
-% FRONT PAGE
+% FRONT COVER
 % =========================
 \begin{titlepage}
   \thispagestyle{empty} % no header/footer
@@ -54,6 +56,13 @@
 \newpage
 
 % =========================
+% BLANK PAGE (back of Front Cover)
+% =========================
+\thispagestyle{empty} % no header/footer
+\null
+\newpage
+
+% =========================
 % TABLE OF CONTENTS
 % =========================
 \tableofcontents
@@ -62,9 +71,16 @@
 % =========================
 % SONGS
 % =========================
-\section*{Songs}
-\addcontentsline{toc}{section}{Songs}
-\markboth{Songs}{Songs}
+\clearpage
+\thispagestyle{plain}   % just page numbers
+\vspace*{\fill}         % vertical centering
+\begin{center}
+  {\Huge\bfseries Songs\par}  % big centered title
+\end{center}
+\vspace*{\fill}
+\addcontentsline{toc}{section}{Songs}  % still adds to TOC
+\markboth{Songs}{Songs}  % Set initial header to Songs
+\clearpage
 
 \input{songs/amazing_grace.tex}
 \input{songs/found_a_peanut.tex}
@@ -73,13 +89,27 @@
 \input{songs/boa_constrictor.tex}
 \input{songs/i_met_a_bear.tex}
 \input{songs/wigalo.tex}
+\input{songs/moose.tex}
+\input{songs/penguin.tex}
+\input{songs/vespers.tex}
 
 % =========================
 % SKITS
 % =========================
-\section*{Skits}
-\addcontentsline{toc}{section}{Skits}
-\markboth{Skits}{Skits}
+\clearpage
+\thispagestyle{plain}   % just page numbers
+\vspace*{\fill}         % vertical centering
+\begin{center}
+  {\Huge\bfseries Skits\par}  % big centered title
+\end{center}
+\vspace*{\fill}
+\addcontentsline{toc}{section}{Skits}  % still adds to TOC
+\markboth{Skits}{Skits}  % Switch header Skits
+\clearpage
+
+%\section*{Skits}
+%\addcontentsline{toc}{section}{Skits}
+%\markboth{Skits}{Skits}  % Switch header to Skits
 
 \input{skits/invisible_bench.tex}
 
