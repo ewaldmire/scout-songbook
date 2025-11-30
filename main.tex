@@ -19,13 +19,23 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Songs}
+\fancyhead[L]{\leftmark}  % Left header shows current section
 \fancyfoot[C]{\thepage}
 
+% Individual song titles
 \newcommand{\songtitle}[1]{%
-  \section*{#1}
-  \addcontentsline{toc}{section}{#1}
+  \subsection*{#1}               % Subsection for TOC
+  \addcontentsline{toc}{subsection}{#1}
   \vspace{0.3cm}
+  \markboth{Songs}{Songs}         % Ensure header stays "Songs"
+}
+
+% Individual skit titles
+\newcommand{\skittitle}[1]{%
+  \subsection*{#1}               % Subsection for TOC
+  \addcontentsline{toc}{subsection}{#1}
+  \vspace{0.3cm}
+  \markboth{Skits}{Skits}         % Ensure header stays "Skits"
 }
 
 \begin{document}
@@ -37,7 +47,13 @@
 \tableofcontents
 \newpage
 
-% Include songs from folder
+% =========================
+% SONGS
+% =========================
+\section*{Songs}
+\addcontentsline{toc}{section}{Songs}
+\markboth{Songs}{Songs}  % Set initial header to Songs
+
 \input{songs/amazing_grace.tex}
 \input{songs/found_a_peanut.tex}
 \input{songs/row_row_row.tex}
@@ -48,5 +64,21 @@
 % Moose Song
 % Penguin Song
 % Scout Vespers
+
+% =========================
+% SKITS
+% =========================
+\section*{Skits}
+\addcontentsline{toc}{section}{Skits}
+\markboth{Skits}{Skits}  % Switch header to Skits
+
+\input{skits/invisible_bench.tex}
+
+% Add more skits here
+%\skittitle{Penguin Skit}
+%\input{skits/penguin.tex}
+
+%\skittitle{Scout Vespers}
+%\input{skits/scout_vespers.tex}
 
 \end{document}
