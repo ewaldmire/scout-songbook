@@ -1,20 +1,21 @@
-name: Build & Release Songbook PDF on CentOS Stream 9
+name: Build & Release Songbook PDF (REST)
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Build PDF in CentOS Stream 9 container
       - name: Build PDF in CentOS Stream 9
         run: |
           docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace quay.io/centos/centos:stream9 /bin/bash -c "
@@ -23,22 +24,70 @@ jobs:
             cd /workspace && \
             pdflatex songbook_ebook.tex && \
             pdflatex songbook_ebook.tex
-            #pdfbook main.pdf
           "
 
-      # Step 3: Generate a timestamp-based release tag
+      - name: Install jq (parse JSON)
+        run: sudo apt-get update -y && sudo apt-get install -y jq
+
       - name: Generate release tag
         id: tag
         run: |
-          TAG="build-$(date +%Y%m%d-%H%M%S)"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "tag=build-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
 
-      # Step 4: Create GitHub Release and attach PDF
-      - name: Create GitHub Release with PDF
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ steps.tag.outputs.tag }}
-          name: "Scout Songbook PDF - ${{ steps.tag.outputs.tag }}"
-          files: songbook_ebook.pdf
-          draft: false
-          prerelease: false
+      - name: Create release (REST) and upload PDF
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          ASSET_PATH: ${{ github.workspace }}/songbook_ebook.pdf
+        run: |
+          set -euo pipefail
+
+          if [ ! -f "$ASSET_PATH" ]; then
+            echo "ERROR: asset not found at $ASSET_PATH"
+            exit 1
+          fi
+
+          echo "Creating release for tag: $TAG"
+
+          # Create release
+          create_http_code=$(curl -sS -o /tmp/release_create.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/releases" \
+            -d "{\"tag_name\":\"${TAG}\",\"name\":\"Scout Songbook PDF - ${TAG}\",\"draft\":false,\"prerelease\":false}")
+
+          if [ "$create_http_code" = "201" ]; then
+            echo "Release created (201)."
+            upload_url=$(jq -r .upload_url /tmp/release_create.json)
+          elif [ "$create_http_code" = "422" ]; then
+            # Release likely exists — fetch release by tag
+            echo "Release already exists (422). Fetching release by tag..."
+            resp=$(curl -sS -H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/releases/tags/${TAG}")
+            upload_url=$(echo "$resp" | jq -r .upload_url)
+            if [ "$upload_url" = "null" ] || [ -z "$upload_url" ]; then
+              echo "ERROR: could not get upload_url for existing release."
+              echo "Response:"
+              echo "$resp"
+              exit 1
+            fi
+          else
+            echo "Failed to create release (HTTP $create_http_code). Response:"
+            cat /tmp/release_create.json
+            exit 1
+          fi
+
+          # upload_url is templated like: "https://uploads.github.com/ ... /assets{?name,label}"
+          upload_url="${upload_url%\{*}"
+          filename=$(basename "$ASSET_PATH")
+          echo "Uploading $filename to release..."
+
+          curl --fail -sS -X POST \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Content-Type: application/pdf" \
+            --data-binary @"${ASSET_PATH}" \
+            "${upload_url}?name=${filename}"
+
+          echo "Upload complete. Release tag: ${TAG}"
