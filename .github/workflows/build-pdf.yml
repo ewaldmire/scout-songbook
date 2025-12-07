@@ -21,10 +21,10 @@ jobs:
           docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace quay.io/centos/centos:stream9 /bin/bash -c "
             dnf -y update && \
             dnf -y install texlive-latex texlive-collection-fontsrecommended texlive-fancyhdr texlive-epstopdf-pkg && \
-            cd path/to/latex/files && \
+            cd /workspace/ && \
             pdflatex songbook_ebook.tex && \
-            pdflatex songbook_ebook.tex && \
-            pdfbook main.pdf
+            pdflatex songbook_ebook.tex
+            #pdfbook main.pdf
           "
 
       # Step 3: Upload the PDF
@@ -32,5 +32,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: scout-songbook-pdf
-          path: path/to/latex/files/*.pdf
+          path: /workspace/*.pdf
 
