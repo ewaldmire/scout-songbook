@@ -13,7 +13,7 @@ jobs:
     steps:
       # Step 1: Checkout the repo
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Step 2: Run a CentOS Stream 9 container
       - name: Build PDF in CentOS Stream 9
