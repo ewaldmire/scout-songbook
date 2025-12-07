@@ -1,0 +1,44 @@
+name: Build & Release Songbook PDF on CentOS Stream 9
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Build PDF in CentOS Stream 9 container
+      - name: Build PDF in CentOS Stream 9
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace quay.io/centos/centos:stream9 /bin/bash -c "
+            dnf -y update && \
+            dnf -y install texlive-latex texlive-collection-fontsrecommended texlive-fancyhdr texlive-epstopdf-pkg && \
+            cd /workspace && \
+            pdflatex songbook_ebook.tex && \
+            pdflatex songbook_ebook.tex
+            #pdfbook main.pdf
+          "
+
+      # Step 3: Generate a timestamp-based release tag
+      - name: Generate release tag
+        id: tag
+        run: |
+          TAG="build-$(date +%Y%m%d-%H%M%S)"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      # Step 4: Create GitHub Release and attach PDF
+      - name: Create GitHub Release with PDF
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag.outputs.tag }}
+          name: "Scout Songbook PDF - ${{ steps.tag.outputs.tag }}"
+          files: songbook_ebook.pdf
+          draft: false
+          prerelease: false
