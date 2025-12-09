@@ -2,3 +2,12 @@ Official image `CubScoutsLogo-FullColor-CSBC.jpg` is un-necessarily large for th
 
 Smaller image used in the book was converted with GraphicsMagick with the command:                                                                                                                                                                        
 `gm convert CubScoutsLogo-FullColor-CSBC.jpg -resize 1600x1600 -quality 70 -strip CubScoutsLogo-FullColor-CSBC_sm.jpg`
+
+
+The QR code was generated with:
+
+`qrencode -o qr.png -s 10 "https://github.com/ewaldmire/scout-songbook/releases/latest/download/songbook_ebook.pdf"`
+
+After running:
+
+`dnf install qrencode -y`
